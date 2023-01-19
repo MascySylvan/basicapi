@@ -25,6 +25,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		
 		Employee entity = employeeDTO.toEntity();
 		entity.setUuid(StringUtil.generateUUID() );
+		entity.setDelflg("N");
 		
 		this.employeeDao.save(entity);
 
@@ -41,18 +42,41 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		return response;
 	}
+	
+	@Transactional(rollbackOn = Exception.class)
+	@Override
+	public ServiceResponse<EmployeeDTO> update(String tranRefNo, EmployeeDTO employeeDTO, String uuid) throws Throwable {
+		ServiceResponse<EmployeeDTO> response = new ServiceResponse<EmployeeDTO>();
+		response.setTranRefNo(tranRefNo);
+		
+		Employee updObj = this.employeeDao.getByUuid(uuid);
+		
+		if (updObj != null) {
+			updObj.updateEntity(employeeDTO);
+			
+			this.employeeDao.save(updObj);
+			
+			response.setData(new EmployeeDTO(updObj) );
+			
+		} else {
+			response.setFlag(ResponseFlag.F);
+			response.setMessage("No matching record was found!");
+		}
+
+		return response;
+	}
 
 	@Transactional(rollbackOn = Exception.class)
 	@Override
-	public ServiceResponse<EmployeeDTO> delete(String tranRefNo, String uuid) throws Throwable {
-		ServiceResponse<EmployeeDTO> response = new ServiceResponse<EmployeeDTO>();
+	public ServiceResponse<String> delete(String tranRefNo, String uuid) throws Throwable {
+		ServiceResponse<String> response = new ServiceResponse<String>();
 
 		Employee entity = this.employeeDao.getByUuid(uuid);
 		entity.setDelflg("Y");
 		
 		this.employeeDao.save(entity);
 		
-		response.setData(new EmployeeDTO(entity) );
+		response.setData(uuid);
 		response.setTranRefNo(tranRefNo);
 		
 		return response;

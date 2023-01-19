@@ -43,6 +43,14 @@ public class Employee implements java.io.Serializable {
 	
 	@Column(name = "delflg")
 	private String delflg = "N";
+	
+	public void updateEntity(EmployeeDTO dto) {
+		this.setFullname(dto.getFullname() );
+		this.setSalary(dto.getSalary() );
+		this.setHiredate(dto.getHiredate() );
+		//this.setUuid(dto.getUuid() );
+		//this.setDelflg(dto.getDelflg() );
+	}
 
 	@Override
 	public String toString() {
